@@ -1,50 +1,49 @@
-# Tetris Game Blueprint
+# Tetris Blueprint
 
 ## Overview
-This document outlines the architecture, components, and development plan for a browser‑based Tetris game written in HTML/CSS/JavaScript.
+This document outlines the high‑level architecture and key components required to build a browser‑based Tetris game using HTML5, CSS3, and vanilla JavaScript.
 
 ## Core Features
-- Classic Tetris mechanics (tetrominoes, rotation, collision detection)
-- Score system with level progression
-- Responsive design for desktop and mobile
-- Audio feedback for line clears and game over
-- Optional high‑score persistence using `localStorage`
+- Classic Tetris mechanics (piece rotation, line clearing, score tracking)
+- Responsive canvas rendering
+- Keyboard controls with debouncing
+- Sound effects and optional music
+- Game over and restart logic
+- Optional: high‑score persistence via `localStorage`
+
+## Architecture Diagram
+```
++---------------------+
+|  index.html         |
++---------------------+
+|  style.css          |
++---------------------+
+|  src/
+|   ├─ game.js        |
+|   ├─ renderer.js    |
+|   ├─ input.js       |
+|   └─ utils.js      |
++---------------------
+```
 
 ## File Structure
-```
-└─ src/
-   ├─ index.html          # Entry point
-   ├─ styles.css           # Layout & theming
-   ├─ game.js              # Main game loop and logic
-   ├─ tetrominoes.js       # Tetromino definitions
-   ├─ utils.js             # Helper functions (e.g., matrix ops)
-   └─ assets/
-        └─ sounds/         # Sound effects
-```
+- `index.html` – Entry point with a `<canvas>` element.
+- `style.css` – Basic styling and responsive layout.
+- `src/` – JavaScript modules:
+  - `game.js` – Game loop, state machine, and logic.
+  - `renderer.js` – Canvas drawing utilities.
+  - `input.js` – Keyboard event handling.
+  - `utils.js` – Helper functions (e.g., random piece generator).
 
-## Development Milestones
-1. **Setup project skeleton** – Create `index.html`, link CSS & JS.
-2. **Implement canvas rendering** – Draw grid and current tetromino.
-3. **Add movement & rotation controls** – Keyboard event handling.
-4. **Collision detection** – Prevent overlap with settled blocks.
-5. **Line clearing logic** – Remove full rows, update score.
-6. **Level progression** – Increase drop speed every X lines cleared.
-7. **Responsive UI** – Adapt grid size to viewport.
-8. **Audio integration** – Play sounds on events.
-9. **Persist high scores** – Store and display top scores.
-10. **Testing & polish** – Unit tests, edge cases, visual tweaks.
+## Development Workflow
+1. Set up a local server (`npm install -g http-server` or use VS Code Live Server).
+2. Implement core logic in `game.js`.
+3. Render pieces via `renderer.js`.
+4. Hook keyboard events from `input.js`.
+5. Test, iterate, and polish UI/UX.
 
-## Key Algorithms
-- **Matrix rotation**: rotate a 2D array clockwise.
-- **Collision check**: iterate over tetromino cells and verify bounds and occupancy.
-- **Line clear**: filter rows that are not full, prepend empty rows to maintain grid height.
-
-## Tools & Libraries
-- Vanilla JS (ES6+)
-- Optional testing with Jest or Mocha
-- CSS Grid/Flexbox for layout
-
-## Resources
-- [Tetris Guideline](https://tetris.fandom.com/wiki/Tetris_Guidelines) – official shape definitions.
-- MDN Canvas API docs.
-- Audio files can be sourced from free sound libraries.
+## Next Steps
+- Add sound assets.
+- Implement difficulty scaling.
+- Write unit tests for game logic.
+- Deploy to GitHub Pages or Netlify.
