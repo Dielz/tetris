@@ -5,9 +5,27 @@ import { TETROMINOES } from './tetrominoes.js';
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const CELL_SIZE = 30;
-canvas.width = 10 * CELL_SIZE;
+canvas.width = 16.67 * CELL_SIZE;
 canvas.height = 20 * CELL_SIZE;
 
+function drawTile(x, y, color, opacity = 1) {
+  const borderWidth = 3;
+  const gap = 2;
+  const inset = gap / 2 + borderWidth / 2;
+  const size = CELL_SIZE - gap - borderWidth;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(x + inset, y + inset, size, size, 4);
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.65 * opacity;
+  ctx.fill();
+  ctx.globalAlpha = opacity;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = borderWidth;
+  ctx.stroke();
+  ctx.restore();
+}
 class Game {
   constructor() {
     this.grid = createGrid();
@@ -60,42 +78,18 @@ class Game {
     }
   }
 
-  hardDrop() {
-    // Save current position before dropping
-    const originalY = this.current.y;
-    
-    while (!collides(this.grid, this.current, this.current.x, this.current.y + 1)) {
-      this.current.y += 1;
+  getLandingY() {
+    let landingY = this.current.y;
+    while (!collides(this.grid, this.current, this.current.x, landingY + 1)) {
+      landingY++;
     }
-    
-    // Lock piece after full drop
-    this.lockPiece();
-    
-    // Show visual feedback during hard drop (temporary overlay)
-    if (!this.gameOver) {
-      const tempY = originalY + 2; // Temporary position for visualization
-      ctx.save();
-      ctx.globalAlpha = 0.3;
-      ctx.fillStyle = 'rgba(150, 150, 150, 0.4)';
-      
-      // Draw overlay over the area where piece will fall
-      for (let y = this.current.y; y < this.current.y + this.current.height; y++) {
-        for (let x = this.current.x; x < this.current.x + this.current.width; x++) {
-          if (y >= 0 && y < this.grid.height && x >= 0 && x < this.grid.width) {
-            ctx.beginPath();
-            ctx.moveTo(x * CELL_SIZE, y * CELL_SIZE);
-            ctx.lineTo((x + 1) * CELL_SIZE, y * CELL_SIZE);
-            ctx.lineTo((x + 1) * CELL_SIZE, (y + 1) * CELL_SIZE);
-            ctx.lineTo(x * CELL_SIZE, (y + 1) * CELL_SIZE);
-            ctx.closePath();
-            ctx.fill();
-          }
-        }
-      }
-      ctx.restore();
-    }
+    return landingY;
   }
 
+  hardDrop() {
+    this.current.y = this.getLandingY();
+    this.lockPiece();
+  }
   lockPiece() {
     merge(this.grid, this.current);
     const cleared = clearLines(this.grid);
@@ -161,101 +155,70 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
          }
        }
      }
-     // Draw current piece
+     // Recompute the landing position every frame using the current rotation.
+     if (!this.gameOver) {
+       const landingY = this.getLandingY();
+       const ghostShape = this.current.rotations[this.current.rotation % this.current.rotations.length];
+       if (landingY > this.current.y) {
+         for (let y = 0; y < ghostShape.length; y++) {
+           for (let x = 0; x < ghostShape[y].length; x++) {
+             if (ghostShape[y][x]) {
+               drawTile(
+                 (this.current.x + x) * CELL_SIZE,
+                 (landingY + y) * CELL_SIZE,
+                 this.current.color,
+                 0.3
+               );
+             }
+           }
+         }
+       }
+     }
+     // Active piece: rounded tiles with borders in the piece color.
      const shape = this.current.rotations[this.current.rotation % this.current.rotations.length];
      for (let y = 0; y < shape.length; y++) {
        for (let x = 0; x < shape[y].length; x++) {
          if (shape[y][x]) {
-           ctx.save();
-            ctx.globalAlpha = 0.95;
-            ctx.fillStyle = this.current.color;
-            ctx.beginPath();
-            ctx.moveTo((this.current.x + x) * CELL_SIZE, (this.current.y + y) * CELL_SIZE);
-            ctx.lineTo(((this.current.x + x) + 1) * CELL_SIZE, (this.current.y + y) * CELL_SIZE);
-            ctx.lineTo(((this.current.x + x) + 1) * CELL_SIZE, ((this.current.y + y) + 1) * CELL_SIZE);
-            ctx.lineTo((this.current.x + x) * CELL_SIZE, ((this.current.y + y) + 1) * CELL_SIZE);
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-            ctx.globalAlpha = 1.0;
+           drawTile(
+             (this.current.x + x) * CELL_SIZE,
+             (this.current.y + y) * CELL_SIZE,
+             this.current.color
+           );
          }
        }
      }
-     
-     // Draw next piece preview (right side of canvas)
+
+     // Next piece preview uses the same tile style.
      const nextShape = this.next.rotations[this.next.rotation % this.next.rotations.length];
-     const previewX = 12 * CELL_SIZE; // Position to the right of the board
+     const previewX = 12 * CELL_SIZE;
      const previewY = 10;
-     
-     ctx.save();
-     ctx.globalAlpha = 0.95;
-     ctx.fillStyle = 'rgba(100, 100, 100, 0.8)';
-     
-     // Draw background of next piece preview
      for (let y = 0; y < nextShape.length; y++) {
        for (let x = 0; x < nextShape[y].length; x++) {
          if (nextShape[y][x]) {
-           ctx.beginPath();
-           ctx.moveTo((previewX + x * CELL_SIZE), (previewY + y * CELL_SIZE));
-           ctx.lineTo((previewX + x * CELL_SIZE + CELL_SIZE), (previewY + y * CELL_SIZE));
-           ctx.lineTo((previewX + x * CELL_SIZE + CELL_SIZE), (previewY + y * CELL_SIZE + CELL_SIZE));
-           ctx.lineTo((previewX + x * CELL_SIZE), (previewY + y * CELL_SIZE + CELL_SIZE));
-           ctx.closePath();
-           ctx.fill();
+           drawTile(previewX + x * CELL_SIZE, previewY + y * CELL_SIZE, this.next.color);
          }
        }
      }
-     
-     // Draw next piece with border
-     for (let y = 0; y < nextShape.length; y++) {
-       for (let x = 0; x < nextShape[y].length; x++) {
-         if (nextShape[y][x]) {
-           ctx.save();
-           ctx.globalAlpha = 1.0;
-           ctx.fillStyle = this.next.color;
-           ctx.beginPath();
-           ctx.moveTo((previewX + x * CELL_SIZE), (previewY + y * CELL_SIZE));
-           ctx.lineTo((previewX + x * CELL_SIZE + CELL_SIZE), (previewY + y * CELL_SIZE));
-           ctx.lineTo((previewX + x * CELL_SIZE + CELL_SIZE), (previewY + y * CELL_SIZE + CELL_SIZE));
-           ctx.lineTo((previewX + x * CELL_SIZE), (previewY + y * CELL_SIZE + CELL_SIZE));
-           ctx.closePath();
-           ctx.fill();
-           ctx.restore();
-         }
-       }
-     }
-     
-     // Add thick black border around preview
-     ctx.strokeStyle = 'rgba(0, 0, 0, 1)';
-     ctx.lineWidth = 3;
-     ctx.beginPath();
-     ctx.moveTo(previewX, previewY);
-     ctx.lineTo(previewX + nextShape[0].length * CELL_SIZE, previewY);
-     ctx.lineTo(previewX + nextShape[0].length * CELL_SIZE, previewY + nextShape.length * CELL_SIZE);
-     ctx.lineTo(previewX, previewY + nextShape.length * CELL_SIZE);
-     ctx.closePath();
-     ctx.stroke();
-     
-     // === Score and Controls Label ===
-     ctx.restore();
-     
      // Draw score and time
      ctx.save();
      ctx.font = '16px Arial';
      ctx.fillStyle = '#fff';
      ctx.textAlign = 'left';
-     ctx.fillText(`Score: ${this.score}`, 10, 20);
-     ctx.fillText(`Level: ${this.level}`, 10, 40);
+     ctx.fillText(`Score: ${this.score}`, previewX + 5, previewY + nextShape.length * CELL_SIZE + 20);
+     ctx.fillText(`Level: ${this.level}`, previewX + 5, previewY + nextShape.length * CELL_SIZE + 40);
      
      // Controls legend
      ctx.font = '14px Arial';
      ctx.textAlign = 'left';
-     ctx.fillText('Arrow Keys:', 10, 65);
-     ctx.fillText('← → : Move', 10, 85);
-     ctx.fillText('↓ : Soft Drop', 10, 105);
-     ctx.fillText('↑ : Rotate', 10, 125);
-     ctx.fillText('Space : Hard Drop', 10, 145);
+     ctx.fillText('Arrow Keys:', previewX + 5, previewY + nextShape.length * CELL_SIZE + 60);
+     ctx.fillText('← → : Move', previewX + 5, previewY + nextShape.length * CELL_SIZE + 80);
+     ctx.fillText('↓ : Soft Drop', previewX + 5, previewY + nextShape.length * CELL_SIZE + 100);
+     ctx.fillText('↑ : Rotate', previewX + 5, previewY + nextShape.length * CELL_SIZE + 120);
+     ctx.fillText('Space : Hard Drop', previewX + 5, previewY + nextShape.length * CELL_SIZE + 140);
+     ctx.restore();
   }
 }
 
 new Game();
+
+
