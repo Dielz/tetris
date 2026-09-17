@@ -63,12 +63,13 @@ class Game {
     }
   }
 
-  rotatePiece() {
-    const newRot = (this.current.rotation + 1) % this.current.rotations.length;
-    if (!collides(this.grid, { ...this.current, rotation: newRot }, this.current.x, this.current.y)) {
-      this.current.rotation = newRot;
-    }
-  }
+   rotatePiece() {
+     const newRot = (this.current.rotation + 1) % this.current.rotations.length;
+     if (!collides(this.grid, { ...this.current, rotation: newRot }, this.current.x, this.current.y)) {
+       this.current.rotation = newRot;
+       this.playLineSound();
+     }
+   }
 
   drop() {
     if (!collides(this.grid, this.current, this.current.x, this.current.y + 1)) {
