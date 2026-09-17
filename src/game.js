@@ -125,17 +125,11 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
      for (let y = 0; y < this.grid.height; y++) {
        for (let x = 0; x < this.grid.width; x++) {
          if (this.grid.cells[y][x]) {
-           ctx.fillStyle = 'rgba(45, 45, 45, 0.8)';
-           ctx.beginPath();
-           ctx.moveTo(x * CELL_SIZE, y * CELL_SIZE);
-           ctx.lineTo((x + 1) * CELL_SIZE, y * CELL_SIZE);
-           ctx.lineTo((x + 1) * CELL_SIZE, (y + 1) * CELL_SIZE);
-           ctx.lineTo(x * CELL_SIZE, (y + 1) * CELL_SIZE);
-           ctx.closePath();
-           ctx.strokeStyle = 'rgba(60, 60, 60, 0.3)';
-           ctx.lineWidth = 1;
-           ctx.stroke();
-           ctx.fill();
+            // Draw filled cell with rounded borders like a tetromino piece
+            if (this.grid.cells[y][x]) {
+              const color = this.current.color;
+              drawTile(x * CELL_SIZE, y * CELL_SIZE, color, 1.0);
+            }
          }
        }
      }
@@ -163,13 +157,14 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
          for (let y = 0; y < ghostShape.length; y++) {
            for (let x = 0; x < ghostShape[y].length; x++) {
              if (ghostShape[y][x]) {
-               drawTile(
-                 (this.current.x + x) * CELL_SIZE,
-                 (landingY + y) * CELL_SIZE,
-                 this.current.color,
-                 0.3
-               );
-             }
+            // Draw ghost piece with solid silhouette of current piece
+            drawTile(
+              (this.current.x + x) * CELL_SIZE,
+              (landingY + y) * CELL_SIZE,
+              this.current.color,
+              0.5
+            );
+          }
            }
          }
        }
