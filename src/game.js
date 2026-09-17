@@ -205,11 +205,11 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
      // Controls legend
      ctx.font = '14px Arial';
      ctx.textAlign = 'left';
-     ctx.fillText('Arrow Keys:', previewX + 5, previewY + nextShape.length * CELL_SIZE + 60);
-     ctx.fillText('← → : Move', previewX + 5, previewY + nextShape.length * CELL_SIZE + 80);
-     ctx.fillText('↓ : Soft Drop', previewX + 5, previewY + nextShape.length * CELL_SIZE + 100);
-     ctx.fillText('↑ : Rotate', previewX + 5, previewY + nextShape.length * CELL_SIZE + 120);
-     ctx.fillText('Space : Hard Drop', previewX + 5, previewY + nextShape.length * CELL_SIZE + 140);
+     ctx.fillText('Arrow Keys:', previewX + 5, previewY + nextShape.length * CELL_SIZE + 80);
+     ctx.fillText('← → : Move', previewX + 5, previewY + nextShape.length * CELL_SIZE + 100);
+     ctx.fillText('↓ : Soft Drop', previewX + 5, previewY + nextShape.length * CELL_SIZE + 120);
+     ctx.fillText('↑ : Rotate', previewX + 5, previewY + nextShape.length * CELL_SIZE + 140);
+     ctx.fillText('Space : Hard Drop', previewX + 5, previewY + nextShape.length * CELL_SIZE + 160);
      ctx.restore();
   }
 }

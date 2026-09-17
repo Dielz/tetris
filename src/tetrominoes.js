@@ -157,7 +157,7 @@ export const TETROMINOES = [
   // J
   {
     name: 'J',
-    color: '#00f',
+    color: '#00b7ff',
     rotations: [
       [
         [0,0,0,0],
@@ -188,7 +188,7 @@ export const TETROMINOES = [
   // L
   {
     name: 'L',
-    color: '#ff00ff',
+    color: '#ff8000',
     rotations: [
       [
         [0,0,0,0],
